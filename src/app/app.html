@@ -1,0 +1,99 @@
+<div class="page">
+  <header>
+    <h1>Headless UI &amp; Signal Composition</h1>
+    <p class="lede">
+      Two directives contribute behaviour, state and accessibility. Everything you can
+      see on this page &mdash; every element, every icon, every colour &mdash; lives in
+      the consumer.
+    </p>
+  </header>
+
+  <!-- 1 ------------------------------------------------------------------- -->
+  <section>
+    <h2><span class="num">1</span> Toggle <code>[uiToggle]</code></h2>
+    <p class="note">
+      53 lines. No template, no stylesheet. It contributes <code>role="switch"</code>,
+      <code>aria-checked</code>, keyboard activation and a single <code>data-state</code>
+      hook &mdash; nothing else.
+    </p>
+
+    <div class="skins">
+      <div>
+        <div class="skin-label">Skin A &mdash; switch</div>
+        <button class="switch" uiToggle [(checked)]="darkMode" aria-label="Dark mode">
+          <span class="switch-thumb"></span>
+        </button>
+      </div>
+
+      <div>
+        <div class="skin-label">Skin B &mdash; chips</div>
+        <div class="chips">
+          <button class="chip" uiToggle [(checked)]="notifications">Notifications</button>
+          <button class="chip" uiToggle [(checked)]="analytics">Analytics</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="state">
+      One directive, three instances, two skins &mdash;
+      <strong>{{ enabledCount() }}</strong> of 3 enabled
+      <span class="dim">(a <code>computed</code>, never assigned)</span>
+    </p>
+  </section>
+
+  <!-- 2 ------------------------------------------------------------------- -->
+  <section>
+    <h2><span class="num">2</span> Button <code>[uiButton]</code></h2>
+    <p class="note">
+      The directive renders <strong>nothing</strong>. Every icon below is markup in
+      <code>app.html</code>; the spinner is the consumer's <code>&#64;if</code>, reading
+      the directive's own state through <code>exportAs</code>. It does not know icons exist.
+    </p>
+
+    <div class="btn-row">
+      <!-- prefix icon: consumer markup, placed wherever the consumer wants -->
+      <button class="btn" uiButton (action)="onClicked()">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        New item
+      </button>
+
+      <!-- suffix icon: same directive, different arrangement -->
+      <button class="btn ghost" uiButton (action)="onClicked()">
+        Continue
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </button>
+
+      <!-- loading: the consumer decides what "busy" looks like -->
+      <button class="btn" uiButton #publish="uiButton" [loading]="publishing()" (action)="onPublish()">
+        @if (publish.loading()) {
+          <span class="spinner" aria-hidden="true"></span>
+        } @else {
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        }
+        {{ publish.loading() ? 'Publishing…' : 'Publish' }}
+      </button>
+
+      <button class="btn ghost" uiButton disabled (action)="onClicked()">
+        Disabled
+      </button>
+
+      <button class="btn" uiButton (action)="onClicked()">
+        Click me
+      </button>
+    </div>
+
+    <p class="state">
+      Published <strong>{{ published() }}</strong> times.
+      <span class="dim">
+        Busy is not disabled &mdash; click Publish, then press Tab. The button keeps focus,
+        announces <code>aria-busy</code>, and refuses the click.
+      </span>
+    </p>
+  </section>
+</div>
